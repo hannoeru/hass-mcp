@@ -8,7 +8,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/hannoeru/homeassistant-mcp.git"
+    "url": "git+https://github.com/hannoeru/hass-mcp.git"
   },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
