@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import { HomeAssistantClient } from '../src/ha'
 
@@ -26,6 +26,10 @@ vi.mock('home-assistant-js-websocket', () => {
       { entity_id: 'light.test', state: 'on', attributes: {} },
     ])),
   }
+})
+
+afterEach(() => {
+  vi.unstubAllGlobals()
 })
 
 describe('homeAssistantClient', () => {

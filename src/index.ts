@@ -6,13 +6,24 @@ import { z } from 'zod'
 
 import { HaConfigSchema, HomeAssistantClient } from './ha.js'
 import {
+  AreaLightsOffInput,
+  AreaLightsOnInput,
   CallServiceInput,
+
+  GetHistoryInput,
+  GetLogbookInput,
   GetStateInput,
+
   ListAreasInput,
+
   ListDevicesInput,
+
   ListEntityRegistryInput,
+
   ListServicesInput,
+
   ListStatesInput,
+
   TurnOffLightInput,
   TurnOnLightInput,
 } from './tools.js'
@@ -133,6 +144,54 @@ async function main() {
     TurnOffLightInput.shape,
     async (input) => {
       const res = await ha.callService('light', 'turn_off', { entity_id: input.entity_id })
+      return {
+        content: [{ type: 'text', text: JSON.stringify(res, null, 2) }],
+      }
+    },
+  )
+
+  server.tool(
+    'ha_area_lights_off',
+    'Turn off all lights in an area (by area_id).',
+    AreaLightsOffInput.shape,
+    async (input) => {
+      const res = await ha.turnOffAreaLights(input)
+      return {
+        content: [{ type: 'text', text: JSON.stringify(res, null, 2) }],
+      }
+    },
+  )
+
+  server.tool(
+    'ha_area_lights_on',
+    'Turn on all lights in an area (by area_id).',
+    AreaLightsOnInput.shape,
+    async (input) => {
+      const res = await ha.turnOnAreaLights(input)
+      return {
+        content: [{ type: 'text', text: JSON.stringify(res, null, 2) }],
+      }
+    },
+  )
+
+  server.tool(
+    'ha_get_logbook',
+    'Fetch logbook entries since an ISO time (optionally for an entity).',
+    GetLogbookInput.shape,
+    async (input) => {
+      const res = await ha.getLogbook(input)
+      return {
+        content: [{ type: 'text', text: JSON.stringify(res, null, 2) }],
+      }
+    },
+  )
+
+  server.tool(
+    'ha_get_history',
+    'Fetch history since an ISO time (optionally for an entity).',
+    GetHistoryInput.shape,
+    async (input) => {
+      const res = await ha.getHistory(input)
       return {
         content: [{ type: 'text', text: JSON.stringify(res, null, 2) }],
       }

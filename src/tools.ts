@@ -23,3 +23,27 @@ export const TurnOnLightInput = z.object({
 export const TurnOffLightInput = z.object({
   entity_id: z.string().min(1),
 })
+
+export const AreaLightsOffInput = z.object({
+  area_id: z.string().min(1),
+  transition: z.number().optional(),
+})
+
+export const AreaLightsOnInput = z.object({
+  area_id: z.string().min(1),
+  brightness_pct: z.number().min(0).max(100).optional(),
+  transition: z.number().optional(),
+})
+
+export const GetLogbookInput = z.object({
+  since: z.string().min(1),
+  end: z.string().min(1).optional(),
+  entity_id: z.string().min(1).optional(),
+})
+
+export const GetHistoryInput = z.object({
+  since: z.string().min(1),
+  end: z.string().min(1).optional(),
+  entity_id: z.string().min(1).optional(),
+  minimal_response: z.boolean().optional(),
+})
