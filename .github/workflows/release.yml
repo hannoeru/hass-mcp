@@ -40,7 +40,14 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Publish package
+      # Publish (prefer npm Trusted Publishing / OIDC). If you also set
+      # secrets.NPM_TOKEN, we'll use it as a fallback.
+      - name: Publish package (OIDC)
+        if: ${{ secrets.NPM_TOKEN == '' }}
+        run: pnpm run publish:ci
+
+      - name: Publish package (token fallback)
+        if: ${{ secrets.NPM_TOKEN != '' }}
         run: pnpm run publish:ci
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
