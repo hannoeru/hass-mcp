@@ -1,13 +1,13 @@
-import { z } from 'zod'
+import { minLength, object, optional, pipe, record, string, unknown } from 'valibot'
 
-export const GetStateInput = z.object({
-  entity_id: z.string().min(1),
+export const GetStateInput = object({
+  entity_id: pipe(string(), minLength(1)),
 })
 
-export const CallServiceInput = z.object({
-  domain: z.string().min(1),
-  service: z.string().min(1),
-  data: z.record(z.string(), z.unknown()).default({}),
+export const CallServiceInput = object({
+  domain: pipe(string(), minLength(1)),
+  service: pipe(string(), minLength(1)),
+  data: optional(record(string(), unknown()), {}),
 })
 
-export const ListStatesInput = z.object({}).strict()
+export const ListStatesInput = object({})

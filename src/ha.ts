@@ -1,14 +1,17 @@
 import type { HassEntities, HassEntity } from 'home-assistant-js-websocket'
 
 import { callService, createConnection, createLongLivedTokenAuth, subscribeEntities } from 'home-assistant-js-websocket'
-import { z } from 'zod'
+import { minLength, object, pipe, string } from 'valibot'
 
-export const HaConfigSchema = z.object({
-  url: z.string().min(1),
-  token: z.string().min(1),
+export const HaConfigSchema = object({
+  url: pipe(string(), minLength(1)),
+  token: pipe(string(), minLength(1)),
 })
 
-export type HaConfig = z.infer<typeof HaConfigSchema>
+export interface HaConfig {
+  url: string
+  token: string
+}
 
 function normalizeBaseUrl(url: string) {
   // Accept `homeassistant.local:8123` too
