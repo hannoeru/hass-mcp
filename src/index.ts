@@ -48,7 +48,7 @@ async function main() {
     'Get Home Assistant entity state by entity_id.',
     GetStateInput.shape,
     async (input) => {
-      const state = ha.getState(input.entity_id)
+      const state = await ha.getState(input.entity_id)
       return {
         content: [{ type: 'text', text: JSON.stringify(state, null, 2) }],
       }
@@ -60,7 +60,7 @@ async function main() {
     'List Home Assistant entity states (can be large).',
     ListStatesInput.shape,
     async () => {
-      const states = ha.listStates()
+      const states = await ha.listStates()
       return {
         content: [{ type: 'text', text: JSON.stringify(states, null, 2) }],
       }

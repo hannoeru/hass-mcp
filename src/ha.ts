@@ -5,6 +5,7 @@ import {
   createConnection,
   createLongLivedTokenAuth,
   getServices,
+  getStates,
   subscribeEntities,
 } from 'home-assistant-js-websocket'
 import { z } from 'zod'
@@ -49,6 +50,10 @@ export class HomeAssistantClient {
     try {
       const connection = await createConnection({ auth })
 
+      // Prime initial state snapshot so the first calls don't return empty.
+      const states = await getStates(connection)
+      this.entities = Object.fromEntries(states.map(s => [s.entity_id, s]))
+
       // Keep an in-memory cache of entities, updated in real-time.
       subscribeEntities(connection, (entities) => {
         this.entities = entities
@@ -72,11 +77,14 @@ export class HomeAssistantClient {
     return await connection.sendMessagePromise({ type, ...payload }) as T
   }
 
-  getState(entityId: string): HassEntity | null {
+  async getState(entityId: string): Promise<HassEntity | null> {
+    // Ensure we have a state snapshot.
+    await this.ensureConnected()
     return this.entities[entityId] ?? null
   }
 
-  listStates(): HassEntities {
+  async listStates(): Promise<HassEntities> {
+    await this.ensureConnected()
     return this.entities
   }
 

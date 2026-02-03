@@ -22,6 +22,9 @@ vi.mock('home-assistant-js-websocket', () => {
     }),
     callService: vi.fn(async () => {}),
     getServices: vi.fn(async () => ({ light: { turn_on: { fields: {} } } })),
+    getStates: vi.fn(async () => ([
+      { entity_id: 'light.test', state: 'on', attributes: {} },
+    ])),
   }
 })
 
@@ -32,7 +35,8 @@ describe('homeAssistantClient', () => {
     // Trigger connection + subscription
     await client.listServices()
 
-    expect(client.getState('light.test')?.state).toBe('on')
+    const st = await client.getState('light.test')
+    expect(st?.state).toBe('on')
   })
 
   it('listServices returns services map', async () => {
