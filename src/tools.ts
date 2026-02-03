@@ -1,26 +1,25 @@
-import { minLength, object, optional, pipe, record, string, unknown } from 'valibot'
+import { z } from 'zod'
 
-export const GetStateInput = object({
-  entity_id: pipe(string(), minLength(1)),
+export const GetStateInput = z.object({
+  entity_id: z.string().min(1),
 })
 
-export const CallServiceInput = object({
-  domain: pipe(string(), minLength(1)),
-  service: pipe(string(), minLength(1)),
-  data: optional(record(string(), unknown()), {}),
+export const CallServiceInput = z.object({
+  domain: z.string().min(1),
+  service: z.string().min(1),
+  data: z.record(z.unknown()).default({}),
 })
 
-export const ListStatesInput = object({})
+export const ListStatesInput = z.object({}).strict()
+export const ListAreasInput = z.object({}).strict()
+export const ListDevicesInput = z.object({}).strict()
+export const ListEntityRegistryInput = z.object({}).strict()
+export const ListServicesInput = z.object({}).strict()
 
-export const ListAreasInput = object({})
-export const ListDevicesInput = object({})
-export const ListEntityRegistryInput = object({})
-export const ListServicesInput = object({})
-
-export const TurnOnLightInput = object({
-  entity_id: pipe(string(), minLength(1)),
+export const TurnOnLightInput = z.object({
+  entity_id: z.string().min(1),
 })
 
-export const TurnOffLightInput = object({
-  entity_id: pipe(string(), minLength(1)),
+export const TurnOffLightInput = z.object({
+  entity_id: z.string().min(1),
 })

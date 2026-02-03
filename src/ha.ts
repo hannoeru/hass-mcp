@@ -7,17 +7,14 @@ import {
   getServices,
   subscribeEntities,
 } from 'home-assistant-js-websocket'
-import { minLength, object, pipe, string } from 'valibot'
+import { z } from 'zod'
 
-export const HaConfigSchema = object({
-  url: pipe(string(), minLength(1)),
-  token: pipe(string(), minLength(1)),
+export const HaConfigSchema = z.object({
+  url: z.string().min(1),
+  token: z.string().min(1),
 })
 
-export interface HaConfig {
-  url: string
-  token: string
-}
+export type HaConfig = z.infer<typeof HaConfigSchema>
 
 function normalizeBaseUrl(url: string) {
   // Accept `homeassistant.local:8123` too
