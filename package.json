@@ -28,6 +28,8 @@
     "build": "tsc -p tsconfig.build.json",
     "lint": "eslint .",
     "typecheck": "tsc -p tsconfig.json --noEmit",
+    "release": "bumpp --commit --tag --push",
+    "publish:ci": "npm publish --access public --provenance",
     "start": "node --enable-source-maps ./dist/index.js"
   },
   "dependencies": {
@@ -37,6 +39,7 @@
   "devDependencies": {
     "@antfu/eslint-config": "^3.0.0",
     "@types/node": "^22.0.0",
+    "bumpp": "^10.4.0",
     "eslint": "^9.0.0",
     "eslint-plugin-format": "^0.1.2",
     "typescript": "^5.4.5"
