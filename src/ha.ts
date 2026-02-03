@@ -1,52 +1,56 @@
+import type { HassEntities, HassEntity } from 'home-assistant-js-websocket'
+
+import { callService, createConnection, createLongLivedTokenAuth, subscribeEntities } from 'home-assistant-js-websocket'
 import { z } from 'zod'
 
 export const HaConfigSchema = z.object({
-  url: z.string().url().or(z.string().startsWith('http://')).or(z.string().startsWith('https://')),
+  url: z.string().min(1),
   token: z.string().min(1),
 })
 
 export type HaConfig = z.infer<typeof HaConfigSchema>
 
+function normalizeBaseUrl(url: string) {
+  // Accept `homeassistant.local:8123` too
+  if (!/^https?:\/\//.test(url))
+    return `http://${url}`
+  return url
+}
+
 export class HomeAssistantClient {
-  constructor(private readonly config: HaConfig) {}
+  private entities: HassEntities = {}
 
-  private async request<T>(path: string, init?: RequestInit): Promise<T> {
-    const url = new URL(path.replace(/^\//, ''), this.config.url.endsWith('/') ? this.config.url : `${this.config.url}/`)
+  private constructor() {}
 
-    const res = await fetch(url, {
-      ...init,
-      headers: {
-        'Authorization': `Bearer ${this.config.token}`,
-        'Content-Type': 'application/json',
-        ...(init?.headers ?? {}),
-      },
+  static async create(config: HaConfig) {
+    const client = new HomeAssistantClient()
+
+    const baseUrl = normalizeBaseUrl(config.url)
+    const auth = createLongLivedTokenAuth(baseUrl, config.token)
+    const connection = await createConnection({ auth })
+
+    // Keep an in-memory cache of entities, updated in real-time.
+    subscribeEntities(connection, (entities) => {
+      client.entities = entities
     })
 
-    if (!res.ok) {
-      const text = await res.text().catch(() => '')
-      throw new Error(`Home Assistant API error ${res.status} ${res.statusText}${text ? `: ${text}` : ''}`)
-    }
-
-    // Some HA endpoints return 200 with empty body
-    const contentType = res.headers.get('content-type') || ''
-    if (!contentType.includes('application/json'))
-      return (await res.text()) as unknown as T
-
-    return await res.json() as T
+    client.connection = connection
+    return client
   }
 
-  async getState(entityId: string) {
-    return await this.request(`/api/states/${entityId}`)
+  private connection!: Parameters<typeof callService>[0]
+
+  getState(entityId: string): HassEntity | null {
+    return this.entities[entityId] ?? null
   }
 
-  async listStates() {
-    return await this.request('/api/states')
+  listStates(): HassEntities {
+    return this.entities
   }
 
   async callService(domain: string, service: string, data: Record<string, unknown>) {
-    return await this.request(`/api/services/${domain}/${service}`, {
-      method: 'POST',
-      body: JSON.stringify(data),
-    })
+    // callService returns void in the library; we return a small acknowledgement
+    await callService(this.connection, domain, service, data)
+    return { ok: true }
   }
 }

@@ -26,10 +26,10 @@ function getConfig() {
 
 async function main() {
   const config = getConfig()
-  const ha = new HomeAssistantClient(config)
+  const ha = await HomeAssistantClient.create(config)
 
   const server = new McpServer({
-    name: 'homeassistant-mcp',
+    name: 'hass-mcp',
     version: '0.1.0',
   })
 
@@ -38,7 +38,7 @@ async function main() {
     'Get Home Assistant entity state by entity_id.',
     GetStateInput.shape,
     async (input) => {
-      const state = await ha.getState(input.entity_id)
+      const state = ha.getState(input.entity_id)
       return {
         content: [{ type: 'text', text: JSON.stringify(state, null, 2) }],
       }
@@ -50,7 +50,7 @@ async function main() {
     'List Home Assistant entity states (can be large).',
     ListStatesInput.shape,
     async () => {
-      const states = await ha.listStates()
+      const states = ha.listStates()
       return {
         content: [{ type: 'text', text: JSON.stringify(states, null, 2) }],
       }
