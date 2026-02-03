@@ -1,4 +1,4 @@
-# homeassistant-mcp
+# hass-mcp
 
 An open-source **MCP server** for controlling and querying **Home Assistant**.
 
@@ -38,8 +38,8 @@ Example (conceptual):
 {
   "mcpServers": {
     "homeassistant": {
-      "command": "node",
-      "args": ["/absolute/path/to/homeassistant-mcp/dist/index.js"],
+      "command": "hass-mcp",
+      "args": [],
       "env": {
         "HASS_URL": "http://homeassistant.local:8123",
         "HASS_TOKEN": "..."

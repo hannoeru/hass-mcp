@@ -1,5 +1,5 @@
 {
-  "name": "homeassistant-mcp",
+  "name": "hass-mcp",
   "type": "module",
   "version": "0.1.0",
   "packageManager": "pnpm@10.28.2",
@@ -10,6 +10,16 @@
     "type": "git",
     "url": "git+https://github.com/hannoeru/homeassistant-mcp.git"
   },
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "bin": {
+    "hass-mcp": "dist/index.js"
+  },
+  "files": [
+    "LICENSE",
+    "README.md",
+    "dist"
+  ],
   "engines": {
     "node": ">=20"
   },
