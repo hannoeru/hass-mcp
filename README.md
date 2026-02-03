@@ -38,8 +38,8 @@ Example (conceptual):
 {
   "mcpServers": {
     "homeassistant": {
-      "command": "hass-mcp",
-      "args": [],
+      "command": "npx",
+      "args": ["-y", "hass-mcp"],
       "env": {
         "HASS_URL": "http://homeassistant.local:8123",
         "HASS_TOKEN": "..."
