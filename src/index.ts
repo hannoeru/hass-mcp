@@ -36,7 +36,7 @@ function getConfig() {
 
 async function main() {
   const config = getConfig()
-  const ha = await HomeAssistantClient.create(config)
+  const ha = new HomeAssistantClient(config)
 
   const server = new McpServer({
     name: 'hass-mcp',

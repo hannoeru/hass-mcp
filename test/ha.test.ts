@@ -27,18 +27,22 @@ vi.mock('home-assistant-js-websocket', () => {
 
 describe('homeAssistantClient', () => {
   it('subscribes to entities and can read cached state', async () => {
-    const client = await HomeAssistantClient.create({ url: 'http://homeassistant.local:8123', token: 'x' })
+    const client = new HomeAssistantClient({ url: 'http://homeassistant.local:8123', token: 'x' })
+
+    // Trigger connection + subscription
+    await client.listServices()
+
     expect(client.getState('light.test')?.state).toBe('on')
   })
 
   it('listServices returns services map', async () => {
-    const client = await HomeAssistantClient.create({ url: 'http://homeassistant.local:8123', token: 'x' })
+    const client = new HomeAssistantClient({ url: 'http://homeassistant.local:8123', token: 'x' })
     const services = await client.listServices()
     expect(services).toHaveProperty('light')
   })
 
   it('registry list calls work via wsCall', async () => {
-    const client = await HomeAssistantClient.create({ url: 'homeassistant.local:8123', token: 'x' })
+    const client = new HomeAssistantClient({ url: 'homeassistant.local:8123', token: 'x' })
     const areas = await client.listAreas()
     expect(areas[0].area_id).toBe('living')
 

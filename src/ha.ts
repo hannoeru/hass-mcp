@@ -26,33 +26,51 @@ function normalizeBaseUrl(url: string) {
 export class HomeAssistantClient {
   private entities: HassEntities = {}
 
-  private constructor() {}
+  constructor(private readonly config: HaConfig) {}
+
+  private connection: Parameters<typeof callService>[0] | null = null
+  private connectPromise: Promise<Parameters<typeof callService>[0]> | null = null
+
+  private async ensureConnected() {
+    if (this.connection)
+      return this.connection
+
+    if (!this.connectPromise)
+      this.connectPromise = this._connect()
+
+    this.connection = await this.connectPromise
+    return this.connection
+  }
+
+  private async _connect() {
+    const baseUrl = normalizeBaseUrl(this.config.url)
+    const auth = createLongLivedTokenAuth(baseUrl, this.config.token)
+
+    try {
+      const connection = await createConnection({ auth })
+
+      // Keep an in-memory cache of entities, updated in real-time.
+      subscribeEntities(connection, (entities) => {
+        this.entities = entities
+      })
+
+      return connection
+    }
+    catch (err) {
+      // Reset so later calls can retry.
+      this.connectPromise = null
+      this.connection = null
+      throw err
+    }
+  }
 
   private async wsCall<T>(type: string, payload: Record<string, unknown> = {}): Promise<T> {
-    const connAny = this.connection as any
-    if (typeof connAny.sendMessagePromise !== 'function')
+    const connection: any = await this.ensureConnected()
+    if (typeof connection.sendMessagePromise !== 'function')
       throw new Error('Home Assistant connection does not support sendMessagePromise')
 
-    return await connAny.sendMessagePromise({ type, ...payload }) as T
+    return await connection.sendMessagePromise({ type, ...payload }) as T
   }
-
-  static async create(config: HaConfig) {
-    const client = new HomeAssistantClient()
-
-    const baseUrl = normalizeBaseUrl(config.url)
-    const auth = createLongLivedTokenAuth(baseUrl, config.token)
-    const connection = await createConnection({ auth })
-
-    // Keep an in-memory cache of entities, updated in real-time.
-    subscribeEntities(connection, (entities) => {
-      client.entities = entities
-    })
-
-    client.connection = connection
-    return client
-  }
-
-  private connection!: Parameters<typeof callService>[0]
 
   getState(entityId: string): HassEntity | null {
     return this.entities[entityId] ?? null
@@ -63,13 +81,16 @@ export class HomeAssistantClient {
   }
 
   async callService(domain: string, service: string, data: Record<string, unknown>) {
+    const connection = await this.ensureConnected()
+
     // callService returns void in the library; we return a small acknowledgement
-    await callService(this.connection, domain, service, data)
+    await callService(connection, domain, service, data)
     return { ok: true }
   }
 
   async listServices() {
-    return await getServices(this.connection)
+    const connection = await this.ensureConnected()
+    return await getServices(connection)
   }
 
   async listAreas() {

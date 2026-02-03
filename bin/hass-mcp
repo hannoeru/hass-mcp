@@ -1,6 +1,0 @@
-#!/usr/bin/env node
-
-// Small wrapper so the package works when executed via `npx hass-mcp`.
-// (TS output in dist/ is ESM and does not include a shebang.)
-
-import '../dist/index.js'
