@@ -1,6 +1,12 @@
 import type { HassEntities, HassEntity } from 'home-assistant-js-websocket'
 
-import { callService, createConnection, createLongLivedTokenAuth, subscribeEntities } from 'home-assistant-js-websocket'
+import {
+  callService,
+  createConnection,
+  createLongLivedTokenAuth,
+  getServices,
+  subscribeEntities,
+} from 'home-assistant-js-websocket'
 import { minLength, object, pipe, string } from 'valibot'
 
 export const HaConfigSchema = object({
@@ -24,6 +30,14 @@ export class HomeAssistantClient {
   private entities: HassEntities = {}
 
   private constructor() {}
+
+  private async wsCall<T>(type: string, payload: Record<string, unknown> = {}): Promise<T> {
+    const connAny = this.connection as any
+    if (typeof connAny.sendMessagePromise !== 'function')
+      throw new Error('Home Assistant connection does not support sendMessagePromise')
+
+    return await connAny.sendMessagePromise({ type, ...payload }) as T
+  }
 
   static async create(config: HaConfig) {
     const client = new HomeAssistantClient()
@@ -55,5 +69,21 @@ export class HomeAssistantClient {
     // callService returns void in the library; we return a small acknowledgement
     await callService(this.connection, domain, service, data)
     return { ok: true }
+  }
+
+  async listServices() {
+    return await getServices(this.connection)
+  }
+
+  async listAreas() {
+    return await this.wsCall('config/area_registry/list')
+  }
+
+  async listDevices() {
+    return await this.wsCall('config/device_registry/list')
+  }
+
+  async listEntityRegistry() {
+    return await this.wsCall('config/entity_registry/list')
   }
 }

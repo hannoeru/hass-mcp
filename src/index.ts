@@ -6,7 +6,12 @@ import { minLength, object, pipe, string } from 'valibot'
 
 import { HaConfigSchema, HomeAssistantClient } from './ha.js'
 import { parseWith } from './schema.js'
-import { CallServiceInput, GetStateInput } from './tools.js'
+import {
+  CallServiceInput,
+  GetStateInput,
+  TurnOffLightInput,
+  TurnOnLightInput,
+} from './tools.js'
 
 const EnvSchema = object({
   HASS_URL: pipe(string(), minLength(1)),
@@ -55,6 +60,80 @@ async function main() {
       const states = ha.listStates()
       return {
         content: [{ type: 'text', text: JSON.stringify(states, null, 2) }],
+      }
+    },
+  )
+
+  server.tool(
+    'ha_list_services',
+    'List Home Assistant services and their fields.',
+    { title: 'ha_list_services' },
+    async () => {
+      const services = await ha.listServices()
+      return {
+        content: [{ type: 'text', text: JSON.stringify(services, null, 2) }],
+      }
+    },
+  )
+
+  server.tool(
+    'ha_list_areas',
+    'List Home Assistant areas from the area registry.',
+    { title: 'ha_list_areas' },
+    async () => {
+      const areas = await ha.listAreas()
+      return {
+        content: [{ type: 'text', text: JSON.stringify(areas, null, 2) }],
+      }
+    },
+  )
+
+  server.tool(
+    'ha_list_devices',
+    'List Home Assistant devices from the device registry.',
+    { title: 'ha_list_devices' },
+    async () => {
+      const devices = await ha.listDevices()
+      return {
+        content: [{ type: 'text', text: JSON.stringify(devices, null, 2) }],
+      }
+    },
+  )
+
+  server.tool(
+    'ha_list_entity_registry',
+    'List Home Assistant entity registry entries.',
+    { title: 'ha_list_entity_registry' },
+    async () => {
+      const entities = await ha.listEntityRegistry()
+      return {
+        content: [{ type: 'text', text: JSON.stringify(entities, null, 2) }],
+      }
+    },
+  )
+
+  server.tool(
+    'ha_light_turn_on',
+    'Turn on a light by entity_id.',
+    { title: 'ha_light_turn_on' },
+    async (raw) => {
+      const input = parseWith(TurnOnLightInput, raw)
+      const res = await ha.callService('light', 'turn_on', { entity_id: input.entity_id })
+      return {
+        content: [{ type: 'text', text: JSON.stringify(res, null, 2) }],
+      }
+    },
+  )
+
+  server.tool(
+    'ha_light_turn_off',
+    'Turn off a light by entity_id.',
+    { title: 'ha_light_turn_off' },
+    async (raw) => {
+      const input = parseWith(TurnOffLightInput, raw)
+      const res = await ha.callService('light', 'turn_off', { entity_id: input.entity_id })
+      return {
+        content: [{ type: 'text', text: JSON.stringify(res, null, 2) }],
       }
     },
   )

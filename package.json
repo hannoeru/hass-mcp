@@ -28,6 +28,8 @@
     "build": "tsc -p tsconfig.build.json",
     "lint": "eslint .",
     "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "release": "bumpp --commit --tag --push",
     "publish:ci": "npm publish --access public --provenance",
     "start": "node --enable-source-maps ./dist/index.js"
@@ -43,6 +45,7 @@
     "bumpp": "^10.4.0",
     "eslint": "^9.0.0",
     "eslint-plugin-format": "^0.1.2",
-    "typescript": "^5.4.5"
+    "typescript": "^5.4.5",
+    "vitest": "^2.1.9"
   }
 }

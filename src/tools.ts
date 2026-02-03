@@ -11,3 +11,16 @@ export const CallServiceInput = object({
 })
 
 export const ListStatesInput = object({})
+
+export const ListAreasInput = object({})
+export const ListDevicesInput = object({})
+export const ListEntityRegistryInput = object({})
+export const ListServicesInput = object({})
+
+export const TurnOnLightInput = object({
+  entity_id: pipe(string(), minLength(1)),
+})
+
+export const TurnOffLightInput = object({
+  entity_id: pipe(string(), minLength(1)),
+})
