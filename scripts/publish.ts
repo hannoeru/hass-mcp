@@ -1,6 +1,9 @@
 import { execSync } from 'node:child_process'
 import { version } from '../package.json'
 
+// Ensure dist is built before publishing
+execSync('pnpm build', { stdio: 'inherit' })
+
 let command = 'pnpm publish --access public --no-git-checks'
 
 if (version.includes('beta'))
