@@ -98,9 +98,17 @@ export class HomeAssistantClient {
   async callService(domain: string, service: string, data: Record<string, unknown>) {
     const connection = await this.ensureConnected()
 
-    // callService returns void in the library; we return a small acknowledgement
-    await callService(connection, domain, service, data)
-    return { ok: true }
+    try {
+      // callService returns void in the library; we return a small acknowledgement
+      await callService(connection, domain, service, data)
+      return { ok: true, message: `Service ${domain}.${service} called successfully` }
+    } catch (error) {
+      console.error(`Failed to call service ${domain}.${service}:`, error)
+      return {
+        ok: false,
+        error: error instanceof Error ? error.message : 'Unknown error occurred'
+      }
+    }
   }
 
   async listServices() {

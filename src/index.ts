@@ -203,9 +203,33 @@ async function main() {
     'Call a Home Assistant service (domain/service) with data payload.',
     CallServiceInput.shape,
     async (input) => {
-      const res = await ha.callService(input.domain, input.service, input.data)
-      return {
-        content: [{ type: 'text', text: JSON.stringify(res, null, 2) }],
+      try {
+        console.log(`Calling service: ${input.domain}.${input.service}`, input.data)
+        const res = await ha.callService(input.domain, input.service, input.data)
+        
+        if (!res.ok) {
+          return {
+            content: [{
+              type: 'text',
+              text: `Service call failed: ${res.error}`
+            }],
+          }
+        }
+        
+        return {
+          content: [{
+            type: 'text',
+            text: `Service ${input.domain}.${input.service} called successfully. Response: ${JSON.stringify(res, null, 2)}`
+          }],
+        }
+      } catch (error) {
+        console.error('Error in ha_call_service tool:', error)
+        return {
+          content: [{
+            type: 'text',
+            text: `Tool execution failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+          }],
+        }
       }
     },
   )
