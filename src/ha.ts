@@ -219,4 +219,32 @@ export class HomeAssistantClient {
 
     return { ok: true, changed: entityIds.length }
   }
+
+  async getEntitiesByArea(areaId: string) {
+    const entries = await this.listEntityRegistry()
+    const entities = entries.filter(e => e.area_id === areaId)
+    
+    // 获取实体的当前状态
+    await this.ensureConnected()
+    const entitiesWithState = entities.map(entity => ({
+      ...entity,
+      state: this.entities[entity.entity_id] || null
+    }))
+
+    return entitiesWithState
+  }
+
+  async getEntitiesByType(entityType: string) {
+    const entries = await this.listEntityRegistry()
+    const entities = entries.filter(e => e.entity_id.startsWith(`${entityType}.`))
+    
+    // 获取实体的当前状态
+    await this.ensureConnected()
+    const entitiesWithState = entities.map(entity => ({
+      ...entity,
+      state: this.entities[entity.entity_id] || null
+    }))
+
+    return entitiesWithState
+  }
 }

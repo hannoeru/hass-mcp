@@ -10,6 +10,8 @@ import {
   AreaLightsOnInput,
   CallServiceInput,
 
+  GetEntitiesByAreaInput,
+  GetEntitiesByTypeInput,
   GetHistoryInput,
   GetLogbookInput,
   GetStateInput,
@@ -224,6 +226,56 @@ async function main() {
         }
       } catch (error) {
         console.error('Error in ha_call_service tool:', error)
+        return {
+          content: [{
+            type: 'text',
+            text: `Tool execution failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+          }],
+        }
+      }
+    },
+  )
+
+  server.tool(
+    'ha_get_entities_by_area',
+    'Get all entities in a specific area with their current states.',
+    GetEntitiesByAreaInput.shape,
+    async (input) => {
+      try {
+        const entities = await ha.getEntitiesByArea(input.area_id)
+        return {
+          content: [{
+            type: 'text',
+            text: JSON.stringify(entities, null, 2)
+          }],
+        }
+      } catch (error) {
+        console.error('Error in ha_get_entities_by_area tool:', error)
+        return {
+          content: [{
+            type: 'text',
+            text: `Tool execution failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+          }],
+        }
+      }
+    },
+  )
+
+  server.tool(
+    'ha_get_entities_by_type',
+    'Get all entities of a specific type (light, switch, sensor...) with their current states.',
+    GetEntitiesByTypeInput.shape,
+    async (input) => {
+      try {
+        const entities = await ha.getEntitiesByType(input.type)
+        return {
+          content: [{
+            type: 'text',
+            text: JSON.stringify(entities, null, 2)
+          }],
+        }
+      } catch (error) {
+        console.error('Error in ha_get_entities_by_type tool:', error)
         return {
           content: [{
             type: 'text',

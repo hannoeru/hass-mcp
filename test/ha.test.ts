@@ -12,7 +12,7 @@ vi.mock('home-assistant-js-websocket', () => {
         if (msg.type === 'config/device_registry/list')
           return [{ id: 'dev1' }]
         if (msg.type === 'config/entity_registry/list')
-          return [{ entity_id: 'light.test' }]
+          return [{ entity_id: 'light.test', area_id: 'living' }]
         return []
       }),
     })),
@@ -58,6 +58,30 @@ describe('homeAssistantClient', () => {
     expect(devices[0].id).toBe('dev1')
 
     const entities = await client.listEntityRegistry()
+    expect(entities[0].entity_id).toBe('light.test')
+  })
+
+  it('getEntitiesByArea returns entities in area with state', async () => {
+    const client = new HomeAssistantClient({ url: 'homeassistant.local:8123', token: 'x' })
+    
+    // Trigger connection to populate entities cache
+    await client.listServices()
+    
+    // The mock should already have the test entity from the global mock
+    const entities = await client.getEntitiesByArea('living')
+    // Since our mock only has one entity with area_id 'living'
+    expect(entities).toHaveLength(1)
+    expect(entities[0].entity_id).toBe('light.test')
+  })
+
+  it('getEntitiesByType returns entities of specific type with state', async () => {
+    const client = new HomeAssistantClient({ url: 'homeassistant.local:8123', token: 'x' })
+    
+    // Trigger connection to populate entities cache
+    await client.listServices()
+    
+    const entities = await client.getEntitiesByType('light')
+    expect(entities).toHaveLength(1)
     expect(entities[0].entity_id).toBe('light.test')
   })
 })

@@ -47,3 +47,11 @@ export const GetHistoryInput = z.object({
   entity_id: z.string().min(1).optional(),
   minimal_response: z.boolean().optional(),
 })
+
+export const GetEntitiesByAreaInput = z.object({
+  area_id: z.string().min(1),
+})
+
+export const GetEntitiesByTypeInput = z.object({
+  type: z.string().min(1),
+})
