@@ -1,7 +1,7 @@
 {
   "name": "hass-mcp",
   "type": "module",
-  "version": "0.1.7",
+  "version": "0.1.8",
   "packageManager": "pnpm@10.28.2",
   "description": "MCP server for Home Assistant (REST/WebSocket) control.",
   "author": "Han Lee",
@@ -27,7 +27,7 @@
   "scripts": {
     "dev": "node --watch --enable-source-maps ./dist/index.js",
     "build": "tsc -p tsconfig.build.json",
-    "prepublishOnly": "pnpm build",
+    "prepublishOnly": "npm run build",
     "lint": "eslint .",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "vitest run",
