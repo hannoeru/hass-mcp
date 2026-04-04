@@ -3,6 +3,7 @@
 > ⚠️ **此 fork 修复了原版的关键 bug 并新增功能**：
 > - 修复 `ha_call_service` 参数字段名错误
 > - 新增 `ha_get_entities_by_area` 和 `ha_get_entities_by_type` 工具
+> - 修复 `ha_get_entities_by_area` 区域继承逻辑（v0.1.10）
 >
 > 原版仓库：[hannoeru/hass-mcp](https://github.com/hannoeru/hass-mcp)
 > 已提交 PR：[#2](https://github.com/hannoeru/hass-mcp/pull/2)
@@ -39,6 +40,22 @@
 
 ---
 
+## 🔄 版本更新日志
+
+### v0.1.10 (最新)
+- **修复**: `ha_get_entities_by_area` 现在支持实体通过设备继承区域
+  - 之前只检查实体本身的 `area_id`
+  - 现在同时检查设备所属区域，解决餐厅灯等实体无法正确识别的问题
+
+### v0.1.9
+- **发布**: 首次发布到 npm (@morairty0909/hass-mcp)
+- **修复**: 解决 npm 发布权限问题
+
+### v0.1.8
+- **新增**: `ha_get_entities_by_area` 和 `ha_get_entities_by_type` 工具
+
+---
+
 An open-source **MCP server** for controlling and querying **Home Assistant**.
 
 - Transport: stdio
@@ -52,7 +69,7 @@ Tools exposed:
 **状态查询**:
 - `ha_get_state` — get state for an entity
 - `ha_list_states` — list all states (can be large)
-- `ha_get_entities_by_area` — get entities in specific area with states
+- `ha_get_entities_by_area` — get entities in specific area with states (支持设备区域继承)
 - `ha_get_entities_by_type` — get entities of specific type with states
 
 **控制操作**:
