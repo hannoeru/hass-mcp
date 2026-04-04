@@ -1,8 +1,10 @@
-# hass-mcp (Moriarty0909 修复版)
+# @morairty0909/hass-mcp (Moriarty0909 修复增强版)
 
-> ⚠️ **此 fork 修复了原版的一个关键 bug**：`ha_call_service` 参数字段名错误导致服务调用失败。
-> 
-> 原版仓库：[hannoeru/hass-mcp](https://github.com/hannoeru/hass-mcp)  
+> ⚠️ **此 fork 修复了原版的关键 bug 并新增功能**：
+> - 修复 `ha_call_service` 参数字段名错误
+> - 新增 `ha_get_entities_by_area` 和 `ha_get_entities_by_type` 工具
+>
+> 原版仓库：[hannoeru/hass-mcp](https://github.com/hannoeru/hass-mcp)
 > 已提交 PR：[#2](https://github.com/hannoeru/hass-mcp/pull/2)
 
 ---
@@ -70,9 +72,15 @@ Tools exposed:
 
 ## Install
 
-### 方式 1：直接从 GitHub 安装（推荐）✅
+### 方式 1：从 npm 安装（最新版本）✅
 
-**注意**: 此仓库已包含编译产物 (dist/)，可以直接使用。
+**注意**: 包已发布到 npm，包含最新功能。
+
+```bash
+npx @morairty0909/hass-mcp
+```
+
+### 方式 2：从 GitHub 安装
 
 ```bash
 npx -y github:Moriarty0909/hass-mcp#main
@@ -93,6 +101,10 @@ pnpm build
 export HASS_URL="http://homeassistant.local:8123"
 export HASS_TOKEN="<your long-lived access token>"
 
+# 使用 npm 包（推荐）
+npx @morairty0909/hass-mcp
+
+# 或使用 GitHub
 npx -y github:Moriarty0909/hass-mcp#main
 ```
 ## Configure in an MCP client
@@ -106,7 +118,7 @@ Example (CoPaw config.json):
     "homeassistant": {
       "name": "homeassistant_mcp",
       "command": "npx",
-      "args": ["-y", "github:Moriarty0909/hass-mcp#main"],
+      "args": ["@morairty0909/hass-mcp"],
       "env": {
         "HASS_URL": "http://homeassistant.local:8123",
         "HASS_TOKEN": "你的 long-lived access token"
