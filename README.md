@@ -86,7 +86,7 @@ npx @morairty0909/hass-mcp
 npx -y github:Moriarty0909/hass-mcp#main
 ```
 
-### 方式 2：本地源码安装
+### 方式 3：本地源码安装
 
 ```bash
 git clone https://github.com/Moriarty0909/hass-mcp.git
