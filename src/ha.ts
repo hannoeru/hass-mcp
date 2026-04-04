@@ -29,6 +29,12 @@ function normalizeBaseUrl(url: string) {
 interface EntityRegistryEntry {
   entity_id: string
   area_id?: string | null
+  device_id?: string | null
+}
+
+interface DeviceRegistryEntry {
+  id: string
+  area_id?: string | null
 }
 
 export class HomeAssistantClient {
@@ -98,9 +104,17 @@ export class HomeAssistantClient {
   async callService(domain: string, service: string, data: Record<string, unknown>) {
     const connection = await this.ensureConnected()
 
-    // callService returns void in the library; we return a small acknowledgement
-    await callService(connection, domain, service, data)
-    return { ok: true }
+    try {
+      // callService returns void in the library; we return a small acknowledgement
+      await callService(connection, domain, service, data)
+      return { ok: true, message: `Service ${domain}.${service} called successfully` }
+    } catch (error) {
+      console.error(`Failed to call service ${domain}.${service}:`, error)
+      return {
+        ok: false,
+        error: error instanceof Error ? error.message : 'Unknown error occurred'
+      }
+    }
   }
 
   async listServices() {
@@ -112,7 +126,7 @@ export class HomeAssistantClient {
     return await this.wsCall('config/area_registry/list')
   }
 
-  async listDevices() {
+  async listDevices(): Promise<DeviceRegistryEntry[]> {
     return await this.wsCall('config/device_registry/list')
   }
 
@@ -210,5 +224,56 @@ export class HomeAssistantClient {
     await this.callService('light', 'turn_on', data)
 
     return { ok: true, changed: entityIds.length }
+  }
+
+  async getEntitiesByArea(areaId: string) {
+    const [entries, devices] = await Promise.all([
+      this.listEntityRegistry(),
+      this.listDevices()
+    ])
+    
+    // 创建设备ID到区域的映射
+    const deviceAreaMap = new Map<string, string>()
+    devices.forEach(device => {
+      if (device.area_id) {
+        deviceAreaMap.set(device.id, device.area_id)
+      }
+    })
+    
+    // 过滤实体：实体本身有区域，或者通过设备继承区域
+    const entities = entries.filter(entity => {
+      // 实体直接有区域
+      if (entity.area_id === areaId) return true
+      
+      // 实体通过设备继承区域
+      if (entity.device_id && deviceAreaMap.has(entity.device_id)) {
+        return deviceAreaMap.get(entity.device_id) === areaId
+      }
+      
+      return false
+    })
+    
+    // 获取实体的当前状态
+    await this.ensureConnected()
+    const entitiesWithState = entities.map(entity => ({
+      ...entity,
+      state: this.entities[entity.entity_id] || null
+    }))
+
+    return entitiesWithState
+  }
+
+  async getEntitiesByType(entityType: string) {
+    const entries = await this.listEntityRegistry()
+    const entities = entries.filter(e => e.entity_id.startsWith(`${entityType}.`))
+    
+    // 获取实体的当前状态
+    await this.ensureConnected()
+    const entitiesWithState = entities.map(entity => ({
+      ...entity,
+      state: this.entities[entity.entity_id] || null
+    }))
+
+    return entitiesWithState
   }
 }
