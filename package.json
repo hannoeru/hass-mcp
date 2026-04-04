@@ -1,5 +1,5 @@
 {
-  "name": "hass-mcp",
+  "name": "@morairty0909/hass-mcp",
   "type": "module",
   "version": "0.1.8",
   "packageManager": "pnpm@10.28.2",
